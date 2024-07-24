@@ -1,25 +1,7 @@
-User,Mood threshold,Action id,Iterations,Time,Mood change,Is scenario changed,Done,Room settings,Room settings,Room settings,Room settings,Room settings,Room settings,Initial relax,Initial arousal,Initial mood,Target mood,Current relax,Current arousal,Current mood
-User 1 (F21),3,2,13,195,3,True,False,3,0,1,0,2,0,10,10,0,2,49,10,3
-User 1 (F21),3,115,13,195,3,False,True,0,2,2,8,3,5,49,10,3,2,49,49,2
-User 1 (F21),4,6,10,150,4,True,False,3,0,2,0,2,0,10,10,0,2,50,10,3
-User 1 (F21),4,2659,10,150,4,False,True,0,2,2,3,3,5,50,10,3,2,50,50,2
-User 1 (F21),4,6,10,150,4,True,False,3,0,2,0,2,0,10,10,0,2,50,10,3
-User 1 (F21),4,2659,10,150,4,False,True,0,2,2,3,3,5,50,10,3,2,50,50,2
-User 2 (M26),4,8,10,150,4,True,False,3,0,1,5,1,0,10,10,0,2,50,10,3
-User 2 (M26),4,2,8,120,5,False,True,0,2,1,8,3,0,50,10,3,2,50,50,2
-User 3 (F52),4,965,10,150,4,True,False,0,2,1,0,0,0,10,10,0,2,50,10,3
-User 3 (F52),4,6,10,150,4,False,True,0,2,2,8,3,0,50,10,3,2,50,50,2
-User 1 (F21),3,2,13,195,3,True,False,3,0,1,0,2,0,10,10,0,2,49,10,3
-User 1 (F21),3,115,13,195,3,False,True,0,2,2,8,3,5,49,10,3,2,49,49,2
-User 2 (M26),3,2,13,195,3,True,False,3,0,1,0,1,0,10,10,0,2,49,10,3
-User 2 (M26),3,2,8,120,5,False,True,0,2,1,8,3,0,49,10,3,2,49,50,2
-User 3 (F52),3,1,12,180,3,True,False,3,0,1,5,2,0,10,10,0,2,49,10,3
-User 3 (F52),3,1,13,195,3,False,True,3,0,1,5,2,0,49,10,3,2,49,49,2
-User 1 (F21),3,1,9,135,4,True,False,0,2,1,8,3,0,10,70,1,3,50,70,2
-User 1 (F21),3,2,6,90,4,False,True,3,0,1,0,0,0,50,70,2,3,50,46,3
-User 2 (M26),3,1,7,105,5,True,False,0,2,1,5,3,0,10,70,1,3,50,70,2
-User 2 (M26),3,10,8,120,3,False,True,3,0,1,5,1,0,50,70,2,3,50,46,3
-User 3 (F52),3,1811,13,195,3,True,False,1,2,2,5,3,0,10,70,1,3,49,70,2
-User 3 (F52),3,2,8,120,3,False,True,3,0,2,0,2,0,49,70,2,3,49,46,3
-User 1 (F21),3,1,9,135,4,True,False,0,2,1,8,3,0,10,70,1,3,50,70,2
-User 1 (F21),3,2,6,90,4,False,True,3,0,1,0,0,0,50,70,2,3,50,46,3
+User,Initial mood,Current mood,Target mood,Mood threshold,Done,Is scenario changed,Action id,Iteration,Time,Mood change,light intensity,Light color,Temperature,Music type,Music volume,Fragrance,Initial relax,Initial arousal,Current relax,Current arousal
+User 1 (F21),0,3,2,6,False,True,46,7,105,6,2,3,2,0,2,0,10,10,52,10
+User 1 (F21),3,2,2,6,True,False,201379,7,105,6,2,0,2,3,3,5,52,10,52,52
+User 1 (F21),0,3,2,5,False,True,14,8,120,5,3,3,2,0,2,0,10,10,50,10
+User 1 (F21),3,2,2,5,True,False,14755,8,120,5,0,0,2,3,3,5,50,10,50,50
+User 1 (F21),0,3,2,4,False,True,6,10,150,4,3,0,2,0,2,0,10,10,50,10
+User 1 (F21),3,2,2,4,True,False,2659,10,150,4,0,2,2,3,3,5,50,10,50,50
