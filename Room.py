@@ -808,10 +808,10 @@ class User:
         self.initial_arousal = self.current_arousal
 
 # symulacja
-mood_threshold = 4
+mood_threshold = 6
 
-initial_arousal = 10
-initial_relax = 10
+initial_arousal = 10  # 0: 10, 1: 70, 2: 70, 3: 10
+initial_relax = 10  # 0: 10, 1: 10, 2:70, 3: 70
 target_mood = 2
 
 # Parametry różnych użytkowników do kolejnych testów
@@ -824,7 +824,7 @@ user3 = User("User 3 (F52)", 52, user3_preferences, target_mood)
 
 # Tworzymy nasze środowisko, przekazując preferencje użytkownika
 # symulacja
-current_user = user1
+current_user = user2
 env = Room(current_user)
 
 # Przykład użycia
@@ -838,6 +838,7 @@ env = Room(current_user)
 results = []
 best_results = []
 continuous_simulation_results = []
+highest_mood_change = 0
 
 def getResultsArray(_env, _action_id, _iteration, _time):
     resultArray=[
@@ -849,14 +850,15 @@ def getResultsArray(_env, _action_id, _iteration, _time):
         _env.done,
         _env.is_scenario_changed,
         _action_id,
-        _iteration,
+        _iteration, 
         _time,
         _env.mood_change,
         list(_env.state)[0], list(_env.state)[1], list(env.state)[2], list(_env.state)[3], list(_env.state)[4], list(_env.state)[5],
         _env.user.initial_relax,
         _env.user.initial_arousal,
         _env.user.current_relax,
-        _env.user.current_arousal]
+        _env.user.current_arousal
+    ]
 
     return resultArray
 def getResultsArrayHeaders():
@@ -876,7 +878,8 @@ def getResultsArrayHeaders():
         "Initial relax",
         "Initial arousal",
         "Current relax",
-        "Current arousal"]
+        "Current arousal"
+    ]
 
     return resultArrayHeaders
 
@@ -891,9 +894,6 @@ def runSingleTest(action_sequence, _action_id, _highest_mood_change):
             # print("[", iteration,"]", env.user.current_mood, env.user.current_arousal, env.user.current_relax, "(", env.mood_change, ")")
             obs, reward, done, info = env.step(action)
 
-            # Zapisz wynik niezależnie od zakończenia
-            results.append(getResultsArray(env, action_id, iteration, time))
-
             if env.done:
                 print("Stopped at", action_id)
                 print("Mood change:", env.mood_change, "Mood threshold:", mood_threshold)
@@ -902,9 +902,9 @@ def runSingleTest(action_sequence, _action_id, _highest_mood_change):
                 if env.mood_change >= mood_threshold:
                     print("Satisfying mood change found:", env.mood_change)
 
-                    if env.mood_change > highest_mood_change:
-                        _highest_mood_change = env.mood_change
-                        best_results.append(getResultsArray(env, action_id, iteration, time))
+                if env.mood_change > highest_mood_change:
+                    _highest_mood_change = env.mood_change
+                    best_results.append(getResultsArray(env, action_id, iteration, time))
 
                 env.user.getInitialMood()
 
@@ -913,8 +913,6 @@ def runSingleTest(action_sequence, _action_id, _highest_mood_change):
 
             elif time >= simulation_time:
                 print("Time runout")
-
-                results.append(getResultsArray(env, action_id, iteration, time))
 
                 env.user.getInitialMood()
                 # kończenie iterowania bieżącego ustawienia
@@ -930,6 +928,9 @@ def runSingleTest(action_sequence, _action_id, _highest_mood_change):
             iteration += 1
             time += 15
 
+        # Zapisz wynik niezależnie od zakończenia
+        results.append(getResultsArray(env, action_id, iteration, time))
+
         _action_id += 1
 
         if env.mood_change >= mood_threshold:
@@ -937,27 +938,34 @@ def runSingleTest(action_sequence, _action_id, _highest_mood_change):
             break
 
     return [_action_id, _highest_mood_change]
-def runContinuousSimulation(action_sequence, _action_id):
+def runContinuousSimulation(action_sequence, _action_id, _highest_mood_change):
     for action in action_sequence:
         iteration = 1
         time = 15
         action_id = _action_id
-
 
         while iteration <= max_iterations_amount:
             # print("[", iteration,"]", env.user.current_mood, env.user.current_arousal, env.user.current_relax, "(", env.mood_change, ")")
             obs, reward, done, info = env.step(action)
 
             if env.is_scenario_changed or env.done:
+                print("Stopped at", action_id)
+                print("Mood change:", env.mood_change, "Mood threshold:", mood_threshold)
+
+                if env.mood_change > _highest_mood_change:
+                    _highest_mood_change = env.mood_change
                 print("Done/Scenario changed")
+
+                # jeśli osiągnięto przejście z satysfakcjonującym wynikiem
                 if env.mood_change >= mood_threshold:
                     print("Stopped at", action_id)
                     print("Mood change:", env.mood_change, "Mood threshold:", mood_threshold)
 
-                    continuous_simulation_results.append(getResultsArray(env, action_id, iteration, time))
+                    # continuous_simulation_results.append(getResultsArray(env, action_id, iteration, time))
 
                     if env.is_scenario_changed:
                         [env.user.initial_mood, env.user.initial_arousal, env.user.initial_relax] = [env.user.current_mood, env.user.current_arousal, env.user.current_relax]
+
                 else:
                     env.user.getInitialMood()
                     env.step_mood = env.setStepMood(env.user.current_mood, env.user.target_mood)
@@ -968,7 +976,6 @@ def runContinuousSimulation(action_sequence, _action_id):
                 env.user.getInitialMood()
                 break
             else:
-
                 env.render()
                 # print("Action:", action)
                 # print("State after action:", obs)
@@ -978,17 +985,20 @@ def runContinuousSimulation(action_sequence, _action_id):
             iteration += 1
             time += 15
 
-        if env.mood_change >= mood_threshold:
+        # Zapisz wynik niezależnie od zakończenia
+        results.append(getResultsArray(env, action_id, iteration, time))
+        print("Mood change:", env.mood_change)
+
+        if (env.is_scenario_changed or env.done) and env.mood_change >= mood_threshold:
             break
         # else:
         #     env.user.getInitialMood()
 
         _action_id += 1
 
-    return [_action_id]
+    return [_action_id, _highest_mood_change]
 
 
-highest_mood_change = 0
 abc = 0
 
 # Single Test
@@ -1030,9 +1040,18 @@ elif env.correct_input and current_user.target_mood == current_user.initial_mood
     # print(_action_sequence)
     while env.reward != 2:
         action_id = 1
-        [action_id] = runContinuousSimulation(env.action_sequence_popular, action_id)
+        [action_id, highest_mood_change] = runContinuousSimulation(env.action_sequence_popular, action_id, 0)
         if not env.is_scenario_changed and not env.done:
-            [action_id] = runContinuousSimulation(env.action_sequence_all, action_id)
+            [action_id, highest_mood_change] = runContinuousSimulation(env.action_sequence_all, action_id, highest_mood_change)
+
+    filename3 = "results.csv"
+    file_exists = os.path.isfile(filename3)
+    with open(filename3, 'w', newline='') as file:
+        writer = csv.writer(file)
+
+        if not file_exists or os.path.getsize(filename3) == 0:
+            writer.writerow(getResultsArrayHeaders())
+        writer.writerows(results)
 
     filename4 = "continuous-simulation-results.csv"
     file_exists = os.path.isfile(filename4)
