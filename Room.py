@@ -1,3 +1,5 @@
+import datetime
+
 import gym
 import numpy as np
 from gym import spaces  # , envs
@@ -331,8 +333,8 @@ class Room(gym.Env):
         return room_settings
 
     def setNewRoomSettingsPopular(self, group_preferences, current_scenario_index, default_room_settings):
-        # największe prawdopodobieństwo trafienia powinno być wśród najpopularniejszych odpowiedzi, więc sprawdzamy je najpierw, żeby oszczędzić na czasie
 
+        # największe prawdopodobieństwo trafienia powinno być wśród najpopularniejszych odpowiedzi, więc sprawdzamy je najpierw, żeby oszczędzić na czasie
         print("\n--- Generating new room settings combinations for scenario", current_scenario_index, "---")
 
         yield default_room_settings
@@ -354,8 +356,6 @@ class Room(gym.Env):
                         for volume in popular_indexes[4]:
                             for fragrance in popular_indexes[5]:
                                 if [light, color, temperature, music, volume, fragrance] != default_room_settings:
-                                    # print("\n-- New setting: ", light, color, temperature, music, volume, fragrance,
-                                    #       "--")
                                     yield [light, color, temperature, music, volume, fragrance]
 
     def setNewRoomSettingsAll(self, group_preferences, current_scenario_index, default_room_settings):
@@ -381,7 +381,6 @@ class Room(gym.Env):
                         for volume in popular_indexes[4]:
                             for fragrance in all_indexes[5]:
                                 if [light, color, temperature, music, volume, fragrance] != default_room_settings:
-                                    # print("\n-- New setting: ", light, color, temperature, music, volume, fragrance, "--")
                                     yield [light, color, temperature, music, volume, fragrance]
 
         for light in popular_indexes[0]:
@@ -391,7 +390,6 @@ class Room(gym.Env):
                         for volume in all_indexes[4]:
                             for fragrance in all_indexes[5]:
                                 if [light, color, temperature, music, volume, fragrance] != default_room_settings:
-                                    # print("\n-- New setting: ", light, color, temperature, music, volume, fragrance, "--")
                                     yield [light, color, temperature, music, volume, fragrance]
 
         for light in popular_indexes[0]:
@@ -401,7 +399,6 @@ class Room(gym.Env):
                         for volume in all_indexes[4]:
                             for fragrance in all_indexes[5]:
                                 if [light, color, temperature, music, volume, fragrance] != default_room_settings:
-                                    # print("\n-- New setting: ", light, color, temperature, music, volume, fragrance, "--")
                                     yield [light, color, temperature, music, volume, fragrance]
 
         for light in popular_indexes[0]:
@@ -411,7 +408,6 @@ class Room(gym.Env):
                         for volume in all_indexes[4]:
                             for fragrance in all_indexes[5]:
                                 if [light, color, temperature, music, volume, fragrance] != default_room_settings:
-                                    # print("\n-- New setting: ", light, color, temperature, music, volume, fragrance, "--")
                                     yield [light, color, temperature, music, volume, fragrance]
 
         for light in popular_indexes[0]:
@@ -430,7 +426,6 @@ class Room(gym.Env):
                         for volume in all_indexes[4]:
                             for fragrance in all_indexes[5]:
                                 if [light, color, temperature, music, volume, fragrance] != default_room_settings:
-                                    # print("\n-- New setting: ", light, color, temperature, music, volume, fragrance, "--")
                                     yield [light, color, temperature, music, volume, fragrance]
 
     def __init__(self, user):
@@ -546,7 +541,6 @@ class Room(gym.Env):
                                                                      self.current_scenario_index)
             # Inicjalizacja stanu na domyślne ustawienia
             self.state = tuple(self.default_room_settings)
-            # print("State: ", self.default_room_settings)
 
             # obliczanie nowego nastroju użytkownika na podstawie nowej akcji (nowych ustawień otoczenia)
             self.mood_change = self.user.calculateNewMood(self.default_room_settings, self.user.current_mood, self.step_mood)
@@ -558,14 +552,12 @@ class Room(gym.Env):
             self.action_sequence_all = self.setNewRoomSettingsAll(self.default_group_preferences,
                                                                   self.current_scenario_index,
                                                                   self.default_room_settings)
-        # return self.reward, self.done, self.info
 
     def step(self, _action):
         # domyślnie nie jest zakończony (done = true, jeśli current_mood == target_mood jak w if poniżej)
         self.done = False
         self.is_scenario_changed = False
 
-        # print(action_id)
         # Przypisujemy kolejne parametry otoczenia zgodnie z action wywołanym poza klasą, która odnosi się do setNewRoomSettingsPopular(), wywoływanego w __init__
         (light_intensity_action, light_color_action, temperature_action, music_action, volume_action,
          fragrance_action) = _action
@@ -574,7 +566,6 @@ class Room(gym.Env):
         light_intensity_action, light_color_action, temperature_action, music_action, volume_action, fragrance_action)
 
         # obliczanie nowego nastroju użytkownika na podstawie nowej akcji (nowych ustawień otoczenia)
-        # print("Calculating new user mood for:", list(self.state), self.user.current_mood, self.step_mood)
         self.mood_change = self.user.calculateNewMood(list(self.state), self.user.current_mood, self.step_mood)
 
         # warunki zakończenia i zmiany step_mood oraz scenariusza
@@ -590,17 +581,11 @@ class Room(gym.Env):
                 self.reward = 1
                 self.is_scenario_changed = True
                 # jeśli osiągnięto nastrój pośredni to przyjmij nastrój docelowy jako kolejny step_mood
-                # print("Step mood achieved! Current mood: ", self.user.current_mood, "Step mood: ", self.step_mood,
-                #       "Target mood: ", self.user.target_mood)
 
-                # self.step_mood = self.user.target_mood
                 self.step_mood = self.setStepMood(self.user.current_mood, self.user.target_mood)
 
                 # określ nowy scenariusz dla nowego current_mood i step_mood
-
                 [self.current_scenario_name, self.current_scenario_index] = self.setScenarioNameAndIndex(self.user.current_mood, self.step_mood)
-
-                # print("New scenario: ", self.current_scenario_name)
 
                 # Nowa sekwencja akcji dla nowego scenariusza
                 self.action_sequence_popular = self.setNewRoomSettingsPopular(self.default_group_preferences, self.current_scenario_index, self.default_room_settings)
@@ -611,32 +596,6 @@ class Room(gym.Env):
                 self.reward = 0
             else:
                 self.reward = -1  # jeśli nastrój nie został osiągnięty i użytkownik jest zestresowany, to nagroda jest ujemna (zależy nam na tym, żeby użytkownik przede wszystkim był zrelaksowany)
-
-            # Niezależnie od zmiany/braku zmiany scenariusza:
-
-            # # Przypisujemy kolejne parametry otoczenia zgodnie z action wywołanym poza klasą, która odnosi się do setNewRoomSettingsPopular(), wywoływanego w __init__
-            # (light_intensity_action, light_color_action, temperature_action, music_action, volume_action,
-            #  fragrance_action) = _action
-            # # Aktualizujemy stan zgodnie z akcją
-            # self.state = (light_intensity_action, light_color_action, temperature_action, music_action, volume_action, fragrance_action)
-            #
-            # # obliczanie nowego nastroju użytkownika na podstawie nowej akcji (nowych ustawień otoczenia)
-            # # print("Calculating new user mood for:", list(self.state), self.user.current_mood, self.step_mood)
-            # self.mood_change = self.user.calculateNewMood(list(self.state), self.user.current_mood, self.step_mood)
-
-        # objaśnienie: możliwe, że będzie jednak konieczne wprowadzenie upływu czasu np. jeśli wg preferencji grupy na osiągnięcie danego nastroju potrzebne jest 30 minut to pętla z tymi samymi parametrami (po stronie pokoju lub ew. po stronie użytkownika) ma być wykonana np 30 razy - wtedy reakcja użytkownika na zmianę otoczenia będzie reakcją na 1 minutę tego otoczenia czyli np jeśli reakcja użytkownika to relax+=1 to po 30 minutach relax wzrośnie o 30
-
-        # self.reward = 0
-        # # dodatnia nagroda za osiągnięcie przejściowego / docelowego nastroju (step_mood = target_mood, jeśli wcześniej step_mood został osiągnięty lub nie ma innego nastroju pośredniego)
-        # if self.user.current_mood == self.step_mood:
-        #     self.reward = 1
-        # else:
-        #     # jeśli nastrój nie został osiągnięty, ale użytkownik jest zrelaksowany, to nie ma nagrody (jest zerowa)
-        #     if self.user.current_relax > (self.user.max_relax / 2):
-        #         self.reward = 0
-        #     # jeśli nastrój nie został osiągnięty i użytkownik jest zestresowany, to nagroda jest ujemna (zależy nam na tym, żeby użytkownik przede wszystkim był zrelaksowany)
-        #     else:
-        #         self.reward = -1
 
         self.info = {}
 
@@ -674,12 +633,14 @@ class User:
         return mood_name
 
     def generateRandomMood(self):
-        # losowanie relax i arousal
-        # TODO przywrócić, tymczasowo zrobiony hardcode do testów
+        # eksperyment wieloetapowy:
         # self.current_arousal = round(random.randrange(0, self.max_arousal), 2)
         # self.current_relax = round(random.randrange(0, self.max_relax), 2)
+
+        # eksperyment pojedynczy:
         self.current_arousal = initial_arousal
         self.current_relax = initial_relax
+
         print("Initial arousal = ", self.current_arousal)
         print("Initial relax = ", self.current_relax)
 
@@ -691,23 +652,16 @@ class User:
 
         return [self.current_mood, self.current_mood_name, self.current_relax, self.current_arousal]
 
-    def getInitialMood(self):
+    def setInitialMood(self):
 
         self.current_mood = self.initial_mood
         self.current_mood_name = self.initial_mood_name
         self.current_relax = self.initial_relax
         self.current_arousal = self.initial_arousal
 
-        # print("Setting back user's initial mood, relax, arousal: ", self.current_mood, self.current_relax, self.current_arousal)
-
         return [self.current_mood, self.current_mood_name, self.current_relax, self.current_arousal]
 
     def calculateNewMood(self, current_room_settings, current_mood, step_mood):
-
-        # TODO dodać stres (spadek relaksu na każdą iterację)
-
-        # print("Calculating new user current_mood for settings:", current_room_settings)
-
         previous_arousal = self.current_arousal
         previous_relax = self.current_relax
         previous_mood = self.current_mood
@@ -723,13 +677,6 @@ class User:
                           current_user_scenario_preferences[4][current_room_settings[4]] + \
                           current_user_scenario_preferences[5][current_room_settings[5]]
 
-            # print("Mood change: ", current_user_scenario_preferences[0][current_room_settings[0]],
-            #       current_user_scenario_preferences[1][current_room_settings[1]],
-            #       current_user_scenario_preferences[2][current_room_settings[2]],
-            #       current_user_scenario_preferences[3][current_room_settings[3]],
-            #       current_user_scenario_preferences[4][current_room_settings[4]],
-            #       current_user_scenario_preferences[5][current_room_settings[5]], " = ", mood_change)
-
             self.current_relax += np.sum(mood_change)
 
         # scenario B (mood 2->3) A-
@@ -743,13 +690,6 @@ class User:
                           current_user_scenario_preferences[4][current_room_settings[4]] + \
                           current_user_scenario_preferences[5][current_room_settings[5]]
 
-            # print("Mood change: ", current_user_scenario_preferences[0][current_room_settings[0]],
-            #       current_user_scenario_preferences[1][current_room_settings[1]],
-            #       current_user_scenario_preferences[2][current_room_settings[2]],
-            #       current_user_scenario_preferences[3][current_room_settings[3]],
-            #       current_user_scenario_preferences[4][current_room_settings[4]],
-            #       current_user_scenario_preferences[5][current_room_settings[5]], " = ", mood_change)
-
             self.current_arousal -= np.sum(mood_change)
 
         # scenario C (mood 0->3) R+
@@ -762,12 +702,6 @@ class User:
                           current_user_scenario_preferences[3][current_room_settings[3]] + \
                           current_user_scenario_preferences[4][current_room_settings[4]] + \
                           current_user_scenario_preferences[5][current_room_settings[5]]
-
-            # print("Mood change: ", current_user_scenario_preferences[0][current_room_settings[0]],current_user_scenario_preferences[1][current_room_settings[1]],
-            #       current_user_scenario_preferences[2][current_room_settings[2]],
-            #       current_user_scenario_preferences[3][current_room_settings[3]],
-            #       current_user_scenario_preferences[4][current_room_settings[4]],
-            #       current_user_scenario_preferences[5][current_room_settings[5]], " = ", mood_change)
 
             self.current_relax += np.sum(mood_change)
 
@@ -789,10 +723,6 @@ class User:
 
         self.current_mood = self.getMoodNumber()
 
-        # print("Previous mood, arousal, relax: ", previous_mood, previous_arousal, previous_relax)
-        # print("Current mood, arousal, relax:  ", self.current_mood, self.current_arousal, self.current_relax)
-        # print(mood_change)
-
         return mood_change
 
     def __init__(self, name, age, preferences, target_mood):
@@ -812,10 +742,9 @@ class User:
         self.initial_arousal = self.current_arousal
 
 # symulacja
-mood_threshold = 5
-
-initial_arousal = 10  # 0: 10, 1: 70, 2: 70, 3: 10
-initial_relax = 10  # 0: 10, 1: 10, 2:70, 3: 70
+mood_threshold = 6
+initial_arousal = 10  # Scen_0: 10, Scen_1: 70, Scen_2: 70, Scen_3: 10
+initial_relax = 70    # Scen_0: 10, Scen_1: 10, Scen_2: 70, Scen_3: 70
 target_mood = 2
 
 # Parametry różnych użytkowników do kolejnych testów
@@ -826,26 +755,18 @@ user2 = User("User 2 (M26)", 26, user2_preferences, target_mood)
 # respondent nr 45 (K, 52l.)
 user3 = User("User 3 (F52)", 52, user3_preferences, target_mood)
 
-# Tworzymy nasze środowisko, przekazując preferencje użytkownika
-# symulacja
+# Tworzenie środowiska, przekazując preferencje użytkownika
 current_user = user2
 env = Room(current_user)
 
-# Przykład użycia
-# obs = env.reset()
-
-# Iterujemy przez akcje generowane przez generator
-# TODO tu jakoś trzeba będzie złapać zmianę action_sequence_popular przy zmianie scenariusza
-# pierwsza propozycja - przechodź przez pętle akcji z kolejnymi sekwencjami dopóki nie zostanie osiągnięcty cel
-# while not env.done:
-
 results = []
-best_results = []
+single_simulation_results = []
 continuous_simulation_results = []
 highest_mood_change = 0
 
 def getResultsArray(_env, _action_id, _iteration, _time):
     resultArray=[
+        datetime.datetime.now(),
         _env.user.name,
         _env.user.initial_mood,
         _env.user.current_mood,
@@ -867,6 +788,7 @@ def getResultsArray(_env, _action_id, _iteration, _time):
     return resultArray
 def getResultsArrayHeaders():
     resultArrayHeaders = [
+        "Timestamp",
         "User",
         "Initial mood",
         "Current mood",
@@ -895,7 +817,6 @@ def runSingleTest(action_sequence, _action_id, _highest_mood_change):
         highest_mood_change = _highest_mood_change
 
         while iteration <= max_iterations_amount:
-            # print("[", iteration,"]", env.user.current_mood, env.user.current_arousal, env.user.current_relax, "(", env.mood_change, ")")
             obs, reward, done, info = env.step(action)
 
             if env.done:
@@ -905,12 +826,13 @@ def runSingleTest(action_sequence, _action_id, _highest_mood_change):
                 # Znaleziono wystarczająco dobry wynik
                 if env.mood_change >= mood_threshold:
                     print("Satisfying mood change found:", env.mood_change)
+                    single_simulation_results.append(getResultsArray(env, action_id, iteration, time))
 
                 if env.mood_change > highest_mood_change:
                     _highest_mood_change = env.mood_change
-                    best_results.append(getResultsArray(env, action_id, iteration, time))
+                    # single_simulation_results.append(getResultsArray(env, action_id, iteration, time))
 
-                env.user.getInitialMood()
+                env.user.setInitialMood()
 
                 # kończenie iterowania bieżącego ustawienia
                 break
@@ -918,17 +840,13 @@ def runSingleTest(action_sequence, _action_id, _highest_mood_change):
             elif time >= simulation_time:
                 print("Time runout")
 
-                env.user.getInitialMood()
+                env.user.setInitialMood()
                 # kończenie iterowania bieżącego ustawienia
                 break
 
             else:
                 env.render()
-                # print("Action:", action)
-                # print("State after action:", obs)
-                # print("Reward:", reward)
-                # print("Done:", done)
-                # print("Info:", info)
+
             iteration += 1
             time += 15
 
@@ -948,54 +866,6 @@ def runContinuousSimulation(action_sequence, _action_id, _highest_mood_change):
         time = 15
         action_id = _action_id
 
-        #
-        # while iteration <= max_iterations_amount:
-        #     # print("[", iteration,"]", env.user.current_mood, env.user.current_arousal, env.user.current_relax, "(", env.mood_change, ")")
-        #     obs, reward, done, info = env.step(action)
-        #
-        #     if env.is_scenario_changed or env.done:
-        #         print("Done/Scenario changed. Stopped at", action_id, "Mood change:", env.mood_change, "Mood threshold:", mood_threshold, "Room settings:", action)
-        #
-        #         if env.mood_change > _highest_mood_change:
-        #             _highest_mood_change = env.mood_change
-        #
-        #         # jeśli osiągnięto przejście z satysfakcjonującym wynikiem
-        #         if env.mood_change >= mood_threshold:
-        #             print("Stopped at", action_id)
-        #             print("Mood change:", env.mood_change, "Mood threshold:", mood_threshold)
-        #
-        #             continuous_simulation_results.append(getResultsArray(env, action_id, iteration, time))
-        #
-        #             if env.is_scenario_changed:
-        #                 # ustal nowy nastrój domyślny, do którego ma wracać
-        #                 [env.user.initial_mood, env.user.initial_arousal, env.user.initial_relax] = [
-        #                     env.user.current_mood, env.user.current_arousal, env.user.current_relax]
-        #                 # ustaw nowy nastrój domyślny (może być tu zbędne)
-        #                 env.user.getInitialMood()
-        #
-        #         else:
-        #             env.user.getInitialMood()
-        #             env.step_mood = env.setStepMood(env.user.current_mood, env.user.target_mood)
-        #             print("Keep looking...")
-        #
-        #         break
-        #
-        #     elif time >= simulation_time:
-        #         # print("Time runout")
-        #         env.user.getInitialMood()
-        #        #TODO break
-        #     else:
-        #         env.render()
-        #         # print("Action:", action)
-        #         # print("State after action:", obs)
-        #         # print("Reward:", reward)
-        #         # print("Done:", done)
-        #         # print("Info:", info)
-        #     iteration += 1
-        #     time += 15
-
-        # Zapisz wynik niezależnie od zakończenia
-
         while iteration <= max_iterations_amount:
             obs, reward, done, info = env.step(action)
             print(iteration)
@@ -1013,13 +883,14 @@ def runContinuousSimulation(action_sequence, _action_id, _highest_mood_change):
                 env.is_scenario_changed = False
 
                 break
+
             # Satysfakcjonujący nastrój i nastrój docelowy
             elif env.done and env.mood_change >= mood_threshold:
                 print(action_id, env.user.current_mood, env.user.current_arousal, env.user.current_relax, env.current_scenario_name, "--- DONE ---")
                 continuous_simulation_results.append(getResultsArray(env, action_id, iteration, time))
 
                 break
-
+            # osiągnięto step_mood ale z niezadowalającym progiem
             elif env.is_scenario_changed and env.mood_change < mood_threshold:
                 print(action_id, env.user.current_mood, env.user.current_arousal, env.user.current_relax, env.current_scenario_name, "Done but not satisfied")
 
@@ -1028,18 +899,18 @@ def runContinuousSimulation(action_sequence, _action_id, _highest_mood_change):
 
                 break
 
+            # osiągnięto target_mood, ale z niezadowalającym progiem
             elif env.done and env.mood_change < mood_threshold:
                 print(action_id, env.user.current_mood, env.user.current_arousal, env.user.current_relax, env.current_scenario_name, "Done but not satisfied")
                 # print(env.user.current_mood, env.step_mood, env.user.target_mood)
-                env.user.getInitialMood()
+                env.user.setInitialMood()
 
                 break
-
 
             elif time >= simulation_time:
                 print(action_id, env.user.current_mood, env.user.current_arousal, env.user.current_relax, env.current_scenario_name, "Time runout")
 
-                env.user.getInitialMood()
+                env.user.setInitialMood()
                 env.setStepMood(env.user.current_mood, env.user.target_mood)
                 env.setScenarioNameAndIndex(env.user.current_mood, env.step_mood)
 
@@ -1060,12 +931,9 @@ def runContinuousSimulation(action_sequence, _action_id, _highest_mood_change):
 
     return [_action_id, _highest_mood_change]
 
-
-abc = 0
-
+# Zapisywanie wyników do plików csv
 # Single Test
 if env.correct_input and current_user.target_mood != current_user.initial_mood + 2:
-    # while env.reward != 2:
     [action_id, highest_mood_change] = runSingleTest(env.action_sequence_popular, 1, 0)
 
     print("Mood change:", highest_mood_change)
@@ -1079,6 +947,7 @@ if env.correct_input and current_user.target_mood != current_user.initial_mood +
 
     filename = "results.csv"
     file_exists = os.path.isfile(filename)
+
     with open(filename, 'w', newline='') as file:
         writer = csv.writer(file)
 
@@ -1086,7 +955,8 @@ if env.correct_input and current_user.target_mood != current_user.initial_mood +
             writer.writerow(getResultsArrayHeaders())
         writer.writerows(results)
 
-    filename2 = "best_results.csv"
+    print('Saving file')
+    filename2 = "single_simulation_results.csv"
     file_exists = os.path.isfile(filename2)
     with open(filename2, 'a', newline='') as file:
         writer = csv.writer(file)
@@ -1094,7 +964,7 @@ if env.correct_input and current_user.target_mood != current_user.initial_mood +
         # Jeśli plik nie istnieje lub jest pusty, dodaj nagłówki
         if not file_exists or os.path.getsize(filename2) == 0:
             writer.writerow(getResultsArrayHeaders())
-        writer.writerows(best_results)
+        writer.writerows(single_simulation_results)
 
 # Continuous Run
 elif env.correct_input and current_user.target_mood == current_user.initial_mood + 2:
@@ -1116,7 +986,7 @@ elif env.correct_input and current_user.target_mood == current_user.initial_mood
             writer.writerow(getResultsArrayHeaders())
         writer.writerows(results)
 
-    filename4 = "continuous-simulation-results.csv"
+    filename4 = "continuous-simulation-results_new.csv"
     file_exists = os.path.isfile(filename4)
     with open(filename4, 'a', newline='') as file:
         writer = csv.writer(file)

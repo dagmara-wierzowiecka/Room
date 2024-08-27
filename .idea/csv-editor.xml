@@ -17,7 +17,21 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\continuous-simulation-results_new.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\results.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\single_simulation_results.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
